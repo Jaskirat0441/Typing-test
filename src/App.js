@@ -1,25 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import Footer from "./Componets/Footer";
+import Header from "./Componets/Header";
+import TypingBox from "./Componets/TypingBox";
+import { useTheme } from "./Context/ThemeContext";
+import HomePage from "./Pages/HomePage";
+import UserPage from "./Pages/UserPage";
+// import { auth } from "./firebaseConfig";
+import { GlobalStyle } from "./Styles/global";
+// import { useTheme } from "../Context/ThemeContext";
+import DynamicPage from "./Pages/DynamicPage";
+import ErrorPage from "./Pages/ErrorPage";
+import AlertBar from "./Componets/AlertBar";
+
+
 
 function App() {
+
+
+    const {theme}= useTheme();
+    // console.log(auth);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+    <GlobalStyle/>
+    <AlertBar/>
+   <Routes>
+    <Route path="/" element={<HomePage/>}></Route>
+    <Route path="/user" element={<UserPage/>}></Route>
+    {/* <Route path="/user/:id" element={<DynamicPage/>}></Route> */}
+    {/* <Route path="*" element={<ErrorPage/>}></Route> */}
+
+   </Routes>
+    </ThemeProvider>
+
   );
 }
 
 export default App;
+
+
+
+// styled components
+// random words

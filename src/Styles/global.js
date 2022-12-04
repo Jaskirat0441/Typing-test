@@ -146,13 +146,38 @@ body::-webkit-scrollbar {
 .right-stats{
     width:70%;
 }
-.footer,.header{
+.header{
     display:flex;
     width:1000px;
     margin-left:auto;
+    height:60px;
     justify-content:space-between;
+
+    margin-right:auto;
+}
+.footer{
+    display:flex;
+    flex-direction:column;
+    width:1000px;
+    margin-left:auto;
     height:60px;
     margin-right:auto;
+    align-items:center;
+}
+.actual-footer{
+    display:flex;
+    justify-content:space-between;
+    width:1000px;
+}
+.hint{
+    kbd{
+    color : ${({theme})=>theme.background};
+    background:${({theme})=>theme.title};
+    padding:2.5px 5px;
+    border-radius:3px;
+
+
+    }
 }
 .result-graph, .table{
     width:1000px;
@@ -176,13 +201,13 @@ body::-webkit-scrollbar {
     border-right:2px solid;
 }
 .picture{
-    width:50%;
+    width:40%;
 
 }
 
 
 .info{
-    width:50%;
+    width:60%;
     margin-top:1rem;
     font-size:1.5rem;
     text-align:center;
@@ -204,5 +229,15 @@ body::-webkit-scrollbar {
     justify-content:center;
     align-items: center;
     text-align: center;
+}
+.instruction{
+    color:${({theme})=>theme.title};
+}
+.reset-btn{
+    display:block;
+    margin:auto;
+    margin-top:3rem;
+    transform:scale(2);
+    cursor:pointer;
 }
 `

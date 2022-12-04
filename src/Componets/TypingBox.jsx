@@ -1,3 +1,4 @@
+import { Dialog, DialogTitle } from "@material-ui/core";
 import React, { useState, createRef, useEffect, useRef, useMemo } from "react";
 import { useTestMode } from "../Context/TestModeContext";
 import Stats from "./Stats";
@@ -11,7 +12,7 @@ const TypingBox = () => {
     const [currWordIndex, setcurrWordIndex] = useState(0);
     const [currCharIndex, setcurrCharIndex] = useState(0);
     const [countDown, setcountDown] = useState(()=>{
-      if(testMode=='words'){
+      if(testMode==='words'){
         return 180;
       }
       else{
@@ -25,10 +26,11 @@ const TypingBox = () => {
     const [incorrectChars, setincorrectChars] = useState(0);
     const [extraChars, setextraChars] = useState(0);
     const [missedChars, setmissedChars] = useState(0);
-    const [graphData, setgraphData] = useState([])
+    const [graphData, setgraphData] = useState([]);
     const inputTextRef = useRef(null);
     
     const [intervalId, setintervalId] = useState(null);
+    const [openDialog, setOpenDialog] = useState(false);
     const [wordsArray, setwordsArray] = useState(() => {
       if(testMode === 'words'){
         return randomWords(testWords);
@@ -42,6 +44,49 @@ const TypingBox = () => {
   }, [wordsArray]);
 
 
+  // events on bottom modal 
+  const handleDialogEvents =(e)=>{
+    // setOpenDialog(true);
+
+    // space
+    if(e.keyCode===32){
+      e.preventDefault();
+      redoTest();
+      setOpenDialog(false);
+      return;
+  }
+  // tab and enter
+   if(e.keyCode===9 || e.keyCode ===13){
+    e.preventDefault();
+    resetTest();
+    setOpenDialog(false);
+    return;
+  }
+  e.preventDefault();
+  setOpenDialog(false);
+  startTimer();
+
+
+  }
+  const redoTest =()=>{
+    setcurrCharIndex(0);
+      setcurrWordIndex(0);
+      settestOver(false);
+      settestStart(false);
+      clearInterval(intervalId);
+      setcountDown(testTime);
+      if(testMode==="words"){
+        setcountDown(180);
+      }
+      setgraphData([]);
+      setcorrectChars(0);
+      setincorrectChars(0);
+      setcorrectWords(0);
+      setmissedChars(0);
+      setextraChars(0);
+      resetWordSpanRefClassNames();
+    
+  }
 
   const wordSpanRef = useMemo(() => {
     return Array(words.length)
@@ -49,13 +94,14 @@ const TypingBox = () => {
       .map((i) => createRef(null));
   }, [words]);
 
-  const resetWordSpanRefClassNames = ()=>{
-    wordSpanRef.map(i=>{
-        Array.from(i.current.childNodes).map(j=>{
-            j.className = 'char';
-        })
-    });
-    wordSpanRef[0].current.childNodes[0].className = 'char current';
+ 
+const resetWordSpanRefClassNames = ()=>{
+  wordSpanRef.map(i=>{
+      Array.from(i.current.childNodes).map(j=>{
+          j.className = 'char';
+      })
+  });
+  wordSpanRef[0].current.childNodes[0].className = 'char current';
 }
 
   // console.log(words);
@@ -70,17 +116,18 @@ const TypingBox = () => {
 
     setintervalId(intervalId);
 
-    function timer() {
-      setcountDown((prevCountDown) => {
-        setcorrectChars((correctChars)=>{
-          setgraphData((data)=>{
+    
+      function timer(){
+        setcountDown((prevCountDown)=>{
 
-              const startTime = (testMode==='words')?180:testTime;
-              return [...data,[startTime-prevCountDown,Math.round((correctChars/5)/((startTime-prevCountDown+1)/60))]];
-          });
-          return correctChars;
-      });
-        
+            setcorrectChars((correctChars)=>{
+                setgraphData((data)=>{
+
+                    const startTime = (testMode==='words')?180:testTime;
+                    return [...data,[startTime-prevCountDown,Math.round((correctChars/5)/((startTime-prevCountDown+1)/60))]];
+                });
+                return correctChars;
+            });
 
 
         if (prevCountDown === 1) {
@@ -97,6 +144,19 @@ const TypingBox = () => {
   // console.log(graphData)
 
   const handleKeyDown = (e) => {
+
+
+
+    if(e.keyCode===9){
+      if(testStart){
+        clearInterval(intervalId);
+      }
+          e.preventDefault();
+          setOpenDialog(true);
+          return;
+    }
+
+
     if (!testStart) {
       startTimer();
       settestStart(true);
@@ -108,7 +168,12 @@ const TypingBox = () => {
     //  logic spaces
 
     if (e.keyCode === 32) {
-
+      
+      if(currWordIndex===wordsArray.length-1){
+        clearInterval(intervalId);
+        settestOver(true);
+        return;
+    }
       
       const correctChar = wordSpanRef[currWordIndex].current.querySelectorAll('.correct');
       const incorrectChar = wordSpanRef[currWordIndex].current.querySelectorAll('.incorrect');
@@ -131,6 +196,10 @@ const TypingBox = () => {
       // cursor to next word
       wordSpanRef[currWordIndex + 1].current.childNodes[0].className =
         "char current";
+
+        if(currWordIndex!==0 && wordSpanRef[currWordIndex+1].current.offsetLeft < wordSpanRef[currWordIndex].current.offsetLeft){
+          wordSpanRef[currWordIndex].current.scrollIntoView();
+      }
 
       setcurrWordIndex(currWordIndex + 1);
 
@@ -196,8 +265,9 @@ const TypingBox = () => {
   };
 
   // calculation
-const calculateWPM =()=>{
-   return Math.round((correctChars/5)/(testTime/60))
+ 
+const calculateWPM = ()=>{
+  return Math.round((correctChars/5)/((graphData[graphData.length-1][0]+1)/60));
 }
 
 const calculateAccuracy =() =>{
@@ -221,6 +291,12 @@ const calculateAccuracy =() =>{
         let random = randomWords(100);
         setwordsArray(random);
       }
+      setgraphData([]);
+      setcorrectChars(0);
+      setincorrectChars(0);
+      setcorrectWords(0);
+      setmissedChars(0);
+      setextraChars(0);
       resetWordSpanRefClassNames();
     };
     
@@ -241,10 +317,10 @@ const calculateAccuracy =() =>{
     <div>
        {/* <h1>{countDown}</h1>  */}
        {testOver ? ( 
-         <Stats wpm={calculateWPM()} accuracy={calculateAccuracy()} graphData={graphData} correctChars={correctChars} incorrectChars={incorrectChars} extraChars={extraChars} missedChars={missedChars}/>
+         <Stats resetTest={resetTest}  wpm={calculateWPM()} accuracy={calculateAccuracy()} graphData={graphData} correctChars={correctChars} incorrectChars={incorrectChars} extraChars={extraChars} missedChars={missedChars}/>
          ) : (
           <>
-          <UpperMenu countDown={countDown} />
+          <UpperMenu countDown={countDown} currWordIndex={currWordIndex} />
            <div className="type-box" onClick={focusInput}>
            <div className="words">
              {/* words and chars */}
@@ -270,7 +346,23 @@ const calculateAccuracy =() =>{
         ref={inputTextRef}
         onKeyDown={((e) => handleKeyDown(e))}
       /> 
-      
+      <Dialog open={openDialog} onKeyDown={handleDialogEvents}
+      PaperProps={{
+        style:{
+          backgroundColor:'transparent',
+          boxShadow:'none',
+        }
+      }}
+      style={{
+        backdropFilter:'blur(2px)',
+      }}>
+
+      <DialogTitle>
+        <div className="instruction">Press Space to redo</div>
+        <div className="instruction"> Press Tab/Enter To restart</div>
+        <div className="instruction">Press any other key to exit</div>
+        </DialogTitle>      
+      </Dialog>
     </div>
   );
 };

@@ -1,19 +1,21 @@
-import React from 'react'
-import AccountIcon from './AccountIcons'
-// import AccountIcon from './AccountIcons';
+import React from "react";
+import AccountIcon from "./AccountIcons";
+import CompareButton from "./CompareButton";
 
 const Header = () => {
   return (
     <div className="header">
-        <div className="logo">
-            LOGO
-        </div>
-        <div className="icons">
-            {/* account icon */}
-            <AccountIcon/>
-        </div>
-    </div>
-  )
-}
+      <div className="logo" style={{ display: "flex" }}>
+        <span style={{ display: "block", marginRight: "6px" }}>LOGO</span>
 
-export default Header
+        <CompareButton />
+      </div>
+      <div className="icons">
+        {/* account icon */}
+        <AccountIcon />
+      </div>
+    </div>
+  );
+};
+
+export default Header;

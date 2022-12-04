@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Box, Button, TextField } from '@material-ui/core'
-import { auth } from '../firebaseConfig';
+import { auth,db } from '../firebaseConfig';
 // import errorMapping from '../Utils/errorMessages';
 import { useAlert } from '../Context/AlertContext';
 import { useTheme } from '../Context/ThemeContext';
@@ -9,12 +9,19 @@ import errorMapping from '../Utilis/errorMessage';
 const SignUpForm = ({handleClose}) => {
 
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const {setAlert} = useAlert();
     const {theme} = useTheme();
 
-    const handleSubmit = ()=>{
+    const checkUsernameAvailability =async ()=>{
+        const ref= db.collection('usernames').doc(`${username}`);
+        const res = await ref.get();
+        return !res.exist;
+    }
+
+    const handleSubmit = async ()=>{
         if(!email || !password || !confirmPassword){
             setAlert({
                 open: true,
@@ -33,13 +40,21 @@ const SignUpForm = ({handleClose}) => {
             return;
         }
 
-        auth.createUserWithEmailAndPassword(email,password).then((ok)=>{
-            setAlert({
-                open: true,
-                type: 'success',
-                message: 'Account created'
-            });
-            handleClose();
+        if(await checkUsernameAvailability){
+            auth.createUserWithEmailAndPassword(email,password).then(async(res)=>{
+
+
+            const ref = await db.collection('usernames').doc(`${username}`).set({
+                uid: res.user.uid
+            }).then((response)=>{
+                setAlert({
+                    open: true,
+                    type: 'success',
+                    message: 'Account created'
+                });
+                handleClose();
+            }); 
+           
         }).catch((err)=>{
             setAlert({
                 open: true,
@@ -47,6 +62,14 @@ const SignUpForm = ({handleClose}) => {
                 message: errorMapping[err.code] || "Some error occured"
             });
         });
+    }
+    else{
+        setAlert({
+            open: true,
+            type: 'warning',
+            message: 'Username already exist'
+        });
+    }
 
     }
 
@@ -63,8 +86,28 @@ const SignUpForm = ({handleClose}) => {
     >
         <TextField
             variant='outlined'
+            type='text'
+            label='Enter Username'
+            onChange={(e)=>setUsername(e.target.value)}
+            InputLabelProps={
+                {
+                    style:{
+                        color: theme.title
+                    }
+                }
+            }
+            InputProps={{
+                style:{
+                    color: theme.title
+                }
+            }}
+        >
+            </TextField>
+        
+        <TextField
+            variant='outlined'
             type='email'
-            label='Enter Email'
+            label='Enter email'
             onChange={(e)=>setEmail(e.target.value)}
             InputLabelProps={
                 {

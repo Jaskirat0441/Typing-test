@@ -18,8 +18,15 @@ const Footer = () => {
 
   return (
     <div className='footer'>
-        <div className="footer-links">
+      <div className="instructions">
+        <div className="hint">
+          Press <kbd>Tab</kbd> to open commands
+        </div>
+      </div>
+      <div className="actual-footer">
 
+        <div className="footer-links">
+      Links
         </div>
         <div className="theme_options">
             <Select 
@@ -33,6 +40,7 @@ const Footer = () => {
           }}
             />
         </div>
+      </div>
     </div>
   )
 }

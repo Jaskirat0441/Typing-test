@@ -12,6 +12,7 @@ import { GlobalStyle } from "./Styles/global";
 import DynamicPage from "./Pages/DynamicPage";
 import ErrorPage from "./Pages/ErrorPage";
 import AlertBar from "./Componets/AlertBar";
+import ComparePage from "./Pages/ComparePage";
 
 
 
@@ -27,6 +28,7 @@ function App() {
    <Routes>
     <Route path="/" element={<HomePage/>}></Route>
     <Route path="/user" element={<UserPage/>}></Route>
+    <Route path="/compare/:username" element={<ComparePage/>}></Route>
     {/* <Route path="/user/:id" element={<DynamicPage/>}></Route> */}
     {/* <Route path="*" element={<ErrorPage/>}></Route> */}
 
